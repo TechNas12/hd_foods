@@ -1,8 +1,14 @@
 fastapi
-uvicorn
-python-multipart
-pydantic
+uvicorn[standard]
 sqlalchemy
-asyncpg
+alembic
 python-dotenv
-slowapi
+passlib[bcrypt]
+python-jose[cryptography]
+pydantic[email]
+email-validator
+psycopg2
+# Local dev (SQLite - no extra driver needed, built into Python)
+
+# Production (uncomment when deploying to Supabase/Render)
+# psycopg2-binary
