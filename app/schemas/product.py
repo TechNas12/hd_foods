@@ -3,6 +3,8 @@ from decimal import Decimal
 from datetime import datetime
 from typing import Optional
 import re
+from app.schemas.category import CategoryResponse
+from app.schemas.common import SoftDeleteMixin
 
 
 # ─────────────────────────────────────────────
@@ -10,7 +12,7 @@ import re
 # ─────────────────────────────────────────────
 class ProductImageBase(BaseModel):
     image_url:  str
-    is_primary: bool = False
+    is_hero: bool = False
 
     @field_validator("image_url")
     @classmethod
@@ -18,28 +20,28 @@ class ProductImageBase(BaseModel):
         v = v.strip()
         if not v.startswith(("http://", "https://")):
             raise ValueError("Image URL must start with http:// or https://")
-        allowed_extensions = (".jpg", ".jpeg", ".png", ".webp", ".avif")
-        if not any(v.lower().split("?")[0].endswith(ext) for ext in allowed_extensions):
-            raise ValueError("Image must be jpg, jpeg, png, webp, or avif")
+        # Relaxed check to allow Unsplash URLs which don't have standard extensions
         return v
 
 
 class ProductImageCreate(ProductImageBase):
-    variant_id: Optional[int] = None   # None = belongs to base product
+    product_id: Optional[int] = None
+    storage_path: str
+    sort_order: int = 0
 
 
 class ProductImageUpdate(BaseModel):
     image_url:  Optional[str]  = None
-    is_primary: Optional[bool] = None
-    variant_id: Optional[int]  = None
+    is_hero: Optional[bool] = None
+    sort_order: Optional[int]  = None
 
 
 class ProductImageResponse(ProductImageBase):
-    id:         int
+    id:         str
     product_id: int
-    variant_id: Optional[int] = None
-    is_deleted: bool = False
-    deleted_at: Optional[datetime] = None
+    storage_path: str
+    sort_order: int
+    created_at: datetime
 
     model_config = {"from_attributes": True}
 
@@ -104,12 +106,14 @@ class ProductVariantUpdate(BaseModel):
         return v
 
 
-class ProductVariantResponse(ProductVariantBase):
+class ProductVariantUpdateWithId(ProductVariantUpdate):
+    id: Optional[int] = None
+
+
+class ProductVariantResponse(ProductVariantBase, SoftDeleteMixin):
     id:         int
     product_id: int
     images:     list[ProductImageResponse] = []
-    is_deleted: bool = False
-    deleted_at: Optional[datetime] = None
 
     model_config = {"from_attributes": True}
 
@@ -118,26 +122,18 @@ class ProductVariantResponse(ProductVariantBase):
 # PRODUCT SCHEMAS
 # ─────────────────────────────────────────────
 
-# Valid categories for HD Masale
-VALID_CATEGORIES = {
-    "thepla",
-    "masala",
-    "snacks",
-    "pickles",
-    "sweets",
-    "beverages",
-    "dry-fruits",
-    "combo",
-    "other",
-}
+# (Removed static VALID_CATEGORIES in favor of dynamic centralized categories)
 
 
 class ProductBase(BaseModel):
     name:        str
-    category:    str
+    category_id: Optional[int] = None
+    subtitle:    Optional[str] = None
     description: Optional[str] = None
     base_price:  Decimal
+    original_price: Optional[Decimal] = None
     is_active:   bool = True
+    is_featured: bool = False
 
     @field_validator("name")
     @classmethod
@@ -149,15 +145,7 @@ class ProductBase(BaseModel):
             raise ValueError("Product name cannot exceed 200 characters")
         return v
 
-    @field_validator("category")
-    @classmethod
-    def validate_category(cls, v: str) -> str:
-        v = v.strip().lower()
-        if v not in VALID_CATEGORIES:
-            raise ValueError(
-                f"Invalid category. Must be one of: {', '.join(sorted(VALID_CATEGORIES))}"
-            )
-        return v
+    # (Removed static category validator)
 
     @field_validator("base_price")
     @classmethod
@@ -207,21 +195,16 @@ class ProductCreate(ProductBase):
 
 class ProductUpdate(BaseModel):
     name:        Optional[str]     = None
-    category:    Optional[str]     = None
+    category_id: Optional[int]     = None
+    subtitle:    Optional[str]     = None
     description: Optional[str]    = None
     base_price:  Optional[Decimal] = None
+    original_price: Optional[Decimal] = None
     is_active:   Optional[bool]   = None
+    is_featured: Optional[bool]   = None
+    variants:    Optional[list[ProductVariantUpdateWithId]] = None
 
-    @field_validator("category")
-    @classmethod
-    def validate_category(cls, v: Optional[str]) -> Optional[str]:
-        if v:
-            v = v.strip().lower()
-            if v not in VALID_CATEGORIES:
-                raise ValueError(
-                    f"Invalid category. Must be one of: {', '.join(sorted(VALID_CATEGORIES))}"
-                )
-        return v
+    # (Removed static category validator)
 
     @field_validator("base_price")
     @classmethod
@@ -232,15 +215,14 @@ class ProductUpdate(BaseModel):
         return v
 
 
-class ProductResponse(ProductBase):
+class ProductResponse(ProductBase, SoftDeleteMixin):
     id:            int
     slug:          str
+    category_rel:  Optional["CategoryResponse"] = None
     rating:        float
     reviews_count: int
     variants:      list[ProductVariantResponse] = []
     images:        list[ProductImageResponse]   = []
-    is_deleted:    bool = False
-    deleted_at:    Optional[datetime] = None
 
     model_config = {"from_attributes": True}
 
@@ -250,9 +232,15 @@ class ProductSummary(BaseModel):
     id:         int
     name:       str
     slug:       str
+    category_id: Optional[int] = None
+    category_rel: Optional[CategoryResponse] = None
+    subtitle:   Optional[str] = None
     base_price: Decimal
+    original_price: Optional[Decimal] = None
+    is_active: bool = True
+    variants: list[ProductVariantResponse] = []
     rating:     float
-    images:     list[ProductImageResponse] = []
+    images: list[ProductImageResponse] = [] # Simply representing ProductImage records
 
     model_config = {"from_attributes": True}
 
@@ -260,5 +248,4 @@ class ProductSummary(BaseModel):
 # ─────────────────────────────────────────────
 # CATEGORY LIST (for frontend dropdowns)
 # ─────────────────────────────────────────────
-class CategoryListResponse(BaseModel):
-    categories: list[str] = sorted(VALID_CATEGORIES)
+# (Removed CategoryListResponse as Categories are now dynamic via API)

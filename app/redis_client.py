@@ -1,15 +1,26 @@
 import json
-from upstash_redis import Redis
-from dotenv import load_dotenv
 from decimal import Decimal
+from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
-redis = Redis(
-    url=os.getenv("UPSTASH_REDIS_REST_URL"),
-    token=os.getenv("UPSTASH_REDIS_REST_TOKEN"),
-)
+# ─────────────────────────────────────────────
+# Redis is OPTIONAL — graceful no-op if not configured
+# ─────────────────────────────────────────────
+_redis_url = os.getenv("UPSTASH_REDIS_REST_URL", "")
+_redis_token = os.getenv("UPSTASH_REDIS_REST_TOKEN", "")
+
+redis = None
+if _redis_url and _redis_token:
+    try:
+        from upstash_redis import Redis
+        redis = Redis(url=_redis_url, token=_redis_token)
+        print("[Redis] Connected to Upstash Redis")
+    except Exception as e:
+        print(f"[Redis] Failed to connect — running without cache: {e}")
+else:
+    print("[Redis] No Redis configured — caching disabled (this is fine for local dev)")
 
 
 # ─────────────────────────────────────────────
@@ -51,19 +62,22 @@ def from_json(data: str):
 
 
 # ─────────────────────────────────────────────
-# Cache helpers
+# Cache helpers — all become no-ops if redis is None
 # ─────────────────────────────────────────────
 def cache_set(key: str, value, ttl: int) -> None:
     """Store value in Redis with expiry"""
+    if not redis:
+        return
     try:
         redis.set(key, to_json(value), ex=ttl)
     except Exception as e:
-        # Never let cache errors crash the app
         print(f"[Redis] cache_set failed for key={key}: {e}")
 
 
 def cache_get(key: str):
     """Retrieve value from Redis — returns None on miss or error"""
+    if not redis:
+        return None
     try:
         data = redis.get(key)
         if data:
@@ -76,6 +90,8 @@ def cache_get(key: str):
 
 def cache_delete(*keys: str) -> None:
     """Delete one or more keys from Redis"""
+    if not redis:
+        return
     try:
         for key in keys:
             redis.delete(key)

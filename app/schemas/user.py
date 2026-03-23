@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, field_validator, model_validator
+from pydantic import BaseModel, EmailStr, field_validator, model_validator, ConfigDict
 from datetime import datetime
 from typing import Optional
 import re
@@ -7,62 +7,10 @@ import re
 # ─────────────────────────────────────────────
 # Shared soft-delete mixin for all responses
 # ─────────────────────────────────────────────
-class SoftDeleteMixin(BaseModel):
-    is_deleted: bool = False
-    deleted_at: Optional[datetime] = None
+from app.schemas.common import SoftDeleteMixin
 
 
-# ─────────────────────────────────────────────
-# ADDRESS SCHEMAS
-# ─────────────────────────────────────────────
-class AddressBase(BaseModel):
-    label:      str
-    street:     str
-    city:       str
-    state:      str
-    pincode:    str
-    is_default: bool = False
-
-    @field_validator("pincode")
-    @classmethod
-    def validate_pincode(cls, v: str) -> str:
-        if not re.fullmatch(r"[1-9][0-9]{5}", v):
-            raise ValueError("Pincode must be a valid 6-digit Indian pincode")
-        return v
-
-    @field_validator("label")
-    @classmethod
-    def validate_label(cls, v: str) -> str:
-        if len(v.strip()) < 2:
-            raise ValueError("Label must be at least 2 characters")
-        return v.strip().title()
-
-
-class AddressCreate(AddressBase):
-    pass
-
-
-class AddressUpdate(BaseModel):
-    label:      Optional[str]  = None
-    street:     Optional[str]  = None
-    city:       Optional[str]  = None
-    state:      Optional[str]  = None
-    pincode:    Optional[str]  = None
-    is_default: Optional[bool] = None
-
-    @field_validator("pincode")
-    @classmethod
-    def validate_pincode(cls, v: Optional[str]) -> Optional[str]:
-        if v and not re.fullmatch(r"[1-9][0-9]{5}", v):
-            raise ValueError("Pincode must be a valid 6-digit Indian pincode")
-        return v
-
-
-class AddressResponse(AddressBase, SoftDeleteMixin):
-    id:      int
-    user_id: int
-
-    model_config = {"from_attributes": True}
+from app.schemas.address import AddressResponse, AddressCreate, AddressUpdate
 
 
 # ─────────────────────────────────────────────
@@ -135,37 +83,60 @@ class UserUpdate(BaseModel):
         return v
 
 
-class UserResponse(UserBase, SoftDeleteMixin):
-    id:           int
-    member_since: datetime
-    addresses:    list[AddressResponse] = []
+class UserAdminCreate(UserCreate):
+    is_admin: bool = False
 
-    model_config = {"from_attributes": True}
+
+class UserAdminUpdate(UserUpdate):
+    email:     Optional[EmailStr] = None
+    is_admin:  Optional[bool] = None
+    password:  Optional[str] = None
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v: Optional[str]) -> Optional[str]:
+        if v:
+            if len(v) < 8:
+                raise ValueError("Password must be at least 8 characters")
+            if not re.search(r"[A-Z]", v):
+                raise ValueError("Password must contain at least one uppercase letter")
+            if not re.search(r"[a-z]", v):
+                raise ValueError("Password must contain at least one lowercase letter")
+            if not re.search(r"\d", v):
+                raise ValueError("Password must contain at least one digit")
+            if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", v):
+                raise ValueError("Password must contain at least one special character")
+        return v
+
+
+class UserResponse(UserBase):
+    id: int
+    member_since: datetime
+    is_admin: bool
+    is_superuser: bool
+    addresses: list[AddressResponse] = []
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Short version — used inside OrderResponse to avoid circular nesting
 class UserSummary(BaseModel):
-    id:        int
+    id: int
     full_name: str
-    email:     EmailStr
+    email: EmailStr
+    is_superuser: bool = False
 
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ─────────────────────────────────────────────
-# AUTH SCHEMAS (Supabase flow)
+# AUTH SCHEMAS (Local JWT flow)
 # ─────────────────────────────────────────────
-class UserRegisterPayload(BaseModel):
-    """
-    Sent by frontend AFTER Supabase signup succeeds.
-    Creates the matching row in our local DB.
-    """
-    full_name: str
-    email:     EmailStr
-    phone:     Optional[str] = None
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
 
-
-class TokenData(BaseModel):
-    """Extracted from Supabase JWT payload"""
-    email:   Optional[str] = None
-    user_id: Optional[str] = None  # Supabase UUID (sub field)
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse

@@ -32,7 +32,7 @@ export default function CartPage() {
             <h2 className="text-2xl font-serif font-black text-stone-900 mb-3">Your cart is empty</h2>
             <p className="text-stone-500 font-medium mb-8 max-w-md">Looks like you haven't added any spices to your cart yet. Discover our authentic blends.</p>
             <Link href="/products">
-              <button className="bg-red-700 text-white px-8 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-900/20 hover:bg-red-800 transition-colors">
+              <button className="bg-red-600 text-white px-8 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-600/20 hover:bg-red-700 transition-colors cursor-pointer active:scale-95">
                 Continue Shopping
               </button>
             </Link>
@@ -66,7 +66,7 @@ export default function CartPage() {
                         <h3 className="text-xl font-serif font-bold text-stone-900">{item.name}</h3>
                         <p className="text-stone-500 font-medium text-sm">{item.variantName}</p>
                       </div>
-                      <p className="text-lg font-black text-red-700">₹{item.price}</p>
+                      <p className="text-lg font-black text-stone-900">₹{item.price}</p>
                     </div>
 
                     <div className="flex items-center gap-6">
@@ -88,7 +88,7 @@ export default function CartPage() {
 
                       <button
                         onClick={() => removeFromCart(item.id)}
-                        className="p-3 text-stone-300 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
+                        className="p-3 text-stone-300 hover:text-red-600 hover:bg-stone-50 rounded-xl transition-colors cursor-pointer"
                         aria-label="Remove item"
                       >
                         <Trash2 size={20} />
@@ -124,14 +124,14 @@ export default function CartPage() {
 
                 <div className="flex justify-between items-end">
                   <span className="text-stone-900 font-bold">Total</span>
-                  <span className="text-3xl font-black text-red-700">₹{grandTotal}</span>
+                  <span className="text-3xl font-black text-stone-900">₹{grandTotal}</span>
                 </div>
 
                 <Link href="/checkout" className="block">
                   <motion.button
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ scale: 1.02, backgroundColor: "#B91C1C" }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full py-5 bg-red-700 hover:bg-red-800 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-3 shadow-xl shadow-red-900/20 transition-all cursor-pointer"
+                    className="w-full py-5 bg-red-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-3 shadow-xl shadow-red-600/20 transition-all cursor-pointer"
                   >
                     Proceed to Checkout
                     <ArrowRight size={18} />

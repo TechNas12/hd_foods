@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, User, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, ShieldCheck, AlertCircle, Phone } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -22,21 +23,19 @@ export default function LoginPage() {
     setError('');
     setIsLoading(true);
 
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    if (isLogin) {
-      const success = login(email, password);
-      if (success) {
+    try {
+      if (isLogin) {
+        await login(email, password);
         router.push('/account');
       } else {
-        setError('Invalid email or password. Hint: test@hdfoods.com / password123');
+        await signup(name, email, password, phone || undefined);
+        router.push('/account');
       }
-    } else {
-      signup(name, email);
-      router.push('/account');
+    } catch (err: any) {
+      setError(err.message || 'Authentication failed. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
@@ -44,7 +43,7 @@ export default function LoginPage() {
       {/* Left Column: Visual/Image */}
       <div className="hidden md:block md:w-1/2 relative">
         <Image
-          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3RrUd-YIHTKqIUq9RfjkzA8anhmr--JVl5A&s"
+          src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=1200"
           alt="Spice Heritage"
           fill
           className="object-cover"
@@ -58,7 +57,7 @@ export default function LoginPage() {
             transition={{ duration: 0.8 }}
             className="space-y-6"
           >
-            <div className="w-16 h-16 bg-red-700 rounded-full flex items-center justify-center text-white font-serif italic text-2xl border-2 border-yellow-500 shadow-xl">
+            <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center text-white font-serif italic text-2xl border-2 border-white/20 shadow-xl">
               HD
             </div>
             <h1 className="text-6xl font-serif font-black leading-tight">
@@ -78,7 +77,7 @@ export default function LoginPage() {
           {/* Header */}
           <div className="space-y-4">
             <Link href="/" className="md:hidden block mb-10 w-fit">
-              <div className="w-12 h-12 bg-red-700 rounded-full flex items-center justify-center text-white font-serif italic text-xl border-2 border-yellow-500 shadow-lg">
+              <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white font-serif italic text-xl border-2 border-white/20 shadow-lg cursor-pointer">
                 HD
               </div>
             </Link>
@@ -107,19 +106,34 @@ export default function LoginPage() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="space-y-2"
+                  className="space-y-6"
                 >
-                  <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 px-1">Full Name</label>
-                  <div className="relative group">
-                    <User className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-300 group-focus-within:text-red-700 transition-colors" size={20} />
-                    <input
-                      required
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Rahul Sharma"
-                      className="w-full bg-white border border-stone-200 rounded-2xl pl-14 pr-8 py-5 text-sm focus:outline-none focus:border-red-700 focus:ring-4 focus:ring-red-700/5 transition-all font-medium"
-                    />
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 px-1">Full Name</label>
+                    <div className="relative group">
+                      <User className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-300 group-focus-within:text-red-600 transition-colors" size={20} />
+                      <input
+                        required
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Rahul Sharma"
+                        className="w-full bg-white border border-stone-200 rounded-2xl pl-14 pr-8 py-5 text-sm focus:outline-none focus:border-red-700 focus:ring-4 focus:ring-red-700/5 transition-all font-medium"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 px-1">Phone (Optional)</label>
+                    <div className="relative group">
+                      <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-300 group-focus-within:text-red-600 transition-colors" size={20} />
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="9876543210"
+                        className="w-full bg-white border border-stone-200 rounded-2xl pl-14 pr-8 py-5 text-sm focus:outline-none focus:border-red-700 focus:ring-4 focus:ring-red-700/5 transition-all font-medium"
+                      />
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -128,13 +142,13 @@ export default function LoginPage() {
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 px-1">Email Address</label>
               <div className="relative group">
-                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-300 group-focus-within:text-red-700 transition-colors" size={20} />
+                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-300 group-focus-within:text-red-600 transition-colors" size={20} />
                 <input
                   required
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="test@hdfoods.com"
+                  placeholder="your@email.com"
                   className="w-full bg-white border border-stone-200 rounded-2xl pl-14 pr-8 py-5 text-sm focus:outline-none focus:border-red-700 focus:ring-4 focus:ring-red-700/5 transition-all font-medium"
                 />
               </div>
@@ -144,19 +158,20 @@ export default function LoginPage() {
               <div className="flex justify-between items-center px-1">
                 <label className="text-[10px] font-black uppercase tracking-widest text-stone-400">Password</label>
                 {isLogin && (
-                  <button type="button" className="text-[10px] font-black uppercase tracking-widest text-red-700 hover:text-red-800 transition-colors">
+                  <button type="button" className="text-[10px] font-black uppercase tracking-widest text-red-600 hover:text-red-700 transition-colors cursor-pointer">
                     Forgot?
                   </button>
                 )}
               </div>
               <div className="relative group">
-                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-300 group-focus-within:text-red-700 transition-colors" size={20} />
+                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-300 group-focus-within:text-red-600 transition-colors" size={20} />
                 <input
                   required
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
+                  minLength={6}
                   className="w-full bg-white border border-stone-200 rounded-2xl pl-14 pr-8 py-5 text-sm focus:outline-none focus:border-red-700 focus:ring-4 focus:ring-red-700/5 transition-all font-medium"
                 />
               </div>
@@ -178,7 +193,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-6 bg-red-700 hover:bg-red-800 text-white rounded-2xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-3 shadow-xl shadow-red-900/20 transition-all cursor-pointer disabled:opacity-50"
+              className="w-full py-6 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-3 shadow-xl shadow-red-600/20 transition-all cursor-pointer disabled:opacity-50"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -200,7 +215,7 @@ export default function LoginPage() {
                   setIsLogin(!isLogin);
                   setError('');
                 }}
-                className="ml-2 text-red-700 font-black uppercase tracking-widest text-[10px] hover:text-red-800 transition-colors"
+                className="ml-2 text-red-600 font-black uppercase tracking-widest text-[10px] hover:text-red-700 transition-colors cursor-pointer"
               >
                 {isLogin ? 'Create Account' : 'Sign In Now'}
               </button>

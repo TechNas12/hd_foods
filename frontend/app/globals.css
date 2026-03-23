@@ -1,55 +1,133 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    --color-primary: #1C1917;
+    --color-secondary: #44403C;
+    --color-cta: #DC2626;
+    /* Brand Red 600 */
+    --color-background: #FAFAF9;
+    --color-text: #0C0A09;
+
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+    --space-3xl: 64px;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+  }
+
   html {
     scroll-behavior: smooth;
   }
-  
+
   body {
-    @apply selection:bg-red-200 selection:text-red-900;
+    @apply selection:bg-orange-100 selection:text-stone-900;
   }
 
   /* Custom Scrollbar */
   ::-webkit-scrollbar {
     width: 10px;
   }
+
   ::-webkit-scrollbar-track {
-    @apply bg-stone-100;
+    background: var(--color-background);
   }
+
   ::-webkit-scrollbar-thumb {
-    @apply bg-stone-300 rounded-full border-4 border-stone-100 hover:bg-red-700/30 transition-colors;
+    background: #E7E5E4;
+    border-radius: 9999px;
+    border: 3px solid var(--color-background);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-cta);
   }
 }
 
 @layer utilities {
+  .liquid-glass {
+    @apply bg-white/60 backdrop-blur-2xl border border-white/20 shadow-2xl transition-all duration-500 ease-in-out;
+  }
+
+  .glass-dark {
+    @apply bg-stone-950/80 backdrop-blur-2xl border border-white/5 shadow-2xl;
+  }
+
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-lg border border-stone-100 shadow-md transition-all duration-300;
+  }
+
   .text-balance {
     text-wrap: balance;
   }
-  
+
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
-  
+
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #E7E5E4;
+    border-radius: 9999px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #DC2626;
   }
 }
 
 /* Custom Animations */
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes shimmer {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(100%); }
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(185, 28, 28, 0.4); }
-  50% { box-shadow: 0 0 0 15px rgba(185, 28, 28, 0); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(185, 28, 28, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 0 15px rgba(185, 28, 28, 0);
+  }
 }
 
 .animate-float {
@@ -68,18 +146,19 @@
   right: 0;
   bottom: 0;
   left: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent);
   animation: shimmer 2s infinite;
 }
 
 /* Accessibility: Respect Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
+
+  *,
+  ::before,
+  ::after {
     animation-delay: -1ms !important;
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;

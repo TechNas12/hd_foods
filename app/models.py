@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Text, Boolean, Numeric, Float, D
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
+import uuid
 
 
 class User(Base):
@@ -13,6 +14,10 @@ class User(Base):
     phone         = Column(String(15), nullable=True)
     password_hash = Column(String(255), nullable=False)
     member_since  = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Role
+    is_admin = Column(Boolean, default=False, nullable=False)
+    is_superuser = Column(Boolean, default=False, nullable=False)
 
     # Soft delete
     is_deleted = Column(Boolean, default=False, nullable=False)
@@ -27,14 +32,17 @@ class User(Base):
 class Address(Base):
     __tablename__ = "addresses"
 
-    id         = Column(Integer, primary_key=True, index=True)
-    user_id    = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    label      = Column(String(50), nullable=False)
-    street     = Column(String(255), nullable=False)
-    city       = Column(String(100), nullable=False)
-    state      = Column(String(100), nullable=False)
-    pincode    = Column(String(10),  nullable=False)
-    is_default = Column(Boolean, default=False)
+    id            = Column(Integer, primary_key=True, index=True)
+    user_id       = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    label         = Column(String(50), nullable=False) # e.g., Home, Office
+    building_name = Column(String(150), nullable=True)
+    address_line1 = Column(String(255), nullable=False)
+    address_line2 = Column(String(255), nullable=True)
+    landmark      = Column(String(150), nullable=True)
+    city          = Column(String(100), nullable=False)
+    state         = Column(String(100), nullable=False)
+    pincode       = Column(String(10),  nullable=False)
+    is_default    = Column(Boolean, default=False)
 
     # Soft delete
     is_deleted = Column(Boolean, default=False, nullable=False)
@@ -44,27 +52,42 @@ class Address(Base):
     orders = relationship("Order", back_populates="address")
 
 
+class Category(Base):
+    __tablename__ = "categories"
+
+    id          = Column(Integer, primary_key=True, index=True)
+    name        = Column(String(100), unique=True, nullable=False)
+    slug        = Column(String(120), unique=True, index=True, nullable=False)
+    description = Column(Text, nullable=True)
+
+    products = relationship("Product", back_populates="category_rel")
+
+
 class Product(Base):
     __tablename__ = "products"
 
     id            = Column(Integer, primary_key=True, index=True)
     name          = Column(String(200), nullable=False)
     slug          = Column(String(220), unique=True, index=True, nullable=False)
-    category      = Column(String(100), nullable=False)
+    category_id   = Column(Integer, ForeignKey("categories.id", ondelete="SET NULL"), nullable=True)
     description   = Column(Text, nullable=True)
+    subtitle      = Column(String(200), nullable=True)
     base_price    = Column(Numeric(10, 2), nullable=False)
+    original_price = Column(Numeric(10, 2), nullable=True)
     rating        = Column(Float, default=0.0)
     reviews_count = Column(Integer, default=0)
     is_active     = Column(Boolean, default=True)
+    is_featured   = Column(Boolean, default=False, nullable=False)
 
     # Soft delete
     is_deleted = Column(Boolean, default=False, nullable=False)
     deleted_at = Column(DateTime(timezone=True), nullable=True)
 
     variants    = relationship("ProductVariant", back_populates="product", cascade="all, delete-orphan")
-    images      = relationship("ProductImage",   back_populates="product", cascade="all, delete-orphan")
+    images      = relationship("ProductImage",   back_populates="product", cascade="all, delete-orphan", order_by="ProductImage.sort_order")
     reviews     = relationship("Review",         back_populates="product")
     order_items = relationship("OrderItem",      back_populates="product")
+    category_rel = relationship("Category",      back_populates="products")
 
 
 class ProductVariant(Base):
@@ -88,17 +111,20 @@ class ProductVariant(Base):
 class ProductImage(Base):
     __tablename__ = "product_images"
 
-    id         = Column(Integer, primary_key=True, index=True)
-    product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
-    variant_id = Column(Integer, ForeignKey("product_variants.id", ondelete="SET NULL"), nullable=True)
-    image_url  = Column(String(500), nullable=False)
-    is_primary = Column(Boolean, default=False)
+    id           = Column(String(36), primary_key=True, index=True, default=lambda: str(uuid.uuid4())) # UUID stored as string
+    product_id   = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
+    variant_id   = Column(Integer, ForeignKey("product_variants.id", ondelete="SET NULL"), nullable=True)
+    storage_path = Column(Text, nullable=False)
+    image_url    = Column(String(500), nullable=False)
+    is_hero      = Column(Boolean, default=False, nullable=False)
+    sort_order   = Column(Integer, default=0, nullable=False)
+    created_at   = Column(DateTime(timezone=True), server_default=func.now())
 
     # Soft delete
     is_deleted = Column(Boolean, default=False, nullable=False)
     deleted_at = Column(DateTime(timezone=True), nullable=True)
 
-    product = relationship("Product",        back_populates="images")
+    product = relationship("Product", back_populates="images")
     variant = relationship("ProductVariant", back_populates="images")
 
 

@@ -8,6 +8,7 @@ python-jose[cryptography]
 pydantic[email]
 email-validator
 psycopg2
+
 # Local dev (SQLite - no extra driver needed, built into Python)
 
 # Production (uncomment when deploying to Supabase/Render)

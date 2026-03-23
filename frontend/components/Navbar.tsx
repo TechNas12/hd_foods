@@ -43,17 +43,17 @@ export default function Navbar() {
   return (
     <nav
       className={`fixed z-50 transition-all duration-500 ease-in-out ${showScrolledStyle
-        ? 'top-4 left-4 right-4 py-3 bg-white/80 backdrop-blur-xl border border-stone-200 shadow-lg rounded-2xl md:py-4 px-6'
+        ? 'top-4 left-4 right-4 py-3 liquid-glass rounded-2xl md:py-4 px-6 scale-100'
         : 'top-0 left-0 right-0 py-6 bg-transparent px-6'
         }`}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
+        <Link href="/" className="flex items-center gap-3 group cursor-pointer">
           <motion.div
             whileHover={{ scale: 1.1, rotate: 5 }}
             whileTap={{ scale: 0.9 }}
-            className="w-10 h-10 bg-red-700 rounded-full flex items-center justify-center text-white font-bold text-xl border-2 border-yellow-500 overflow-hidden shadow-lg"
+            className="w-10 h-10 bg-stone-900 rounded-full flex items-center justify-center text-red-600 font-bold text-xl border-2 border-red-600 overflow-hidden shadow-lg"
           >
             <span className="font-serif italic">HD</span>
           </motion.div>
@@ -73,11 +73,11 @@ export default function Navbar() {
             >
               <Link
                 href={item.href}
-                className={`group relative text-xs font-bold uppercase tracking-[0.2em] transition-colors ${showScrolledStyle ? 'text-stone-600' : 'text-white/90'
-                  } hover:text-red-700`}
+                className={`group relative text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-300 cursor-pointer ${showScrolledStyle ? 'text-stone-600' : 'text-white/90'
+                  } hover:text-red-600`}
               >
                 {item.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-700 transition-all duration-300 group-hover:w-full" />
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-600 transition-all duration-300 group-hover:w-full" />
               </Link>
             </motion.div>
           ))}
@@ -135,7 +135,7 @@ export default function Navbar() {
             className="fixed inset-0 z-[60] bg-stone-50 flex flex-col p-8"
           >
             <div className="flex justify-between items-center">
-              <div className="w-10 h-10 bg-red-700 rounded-full flex items-center justify-center text-white font-bold text-xl border-2 border-yellow-500">
+            <div className="w-10 h-10 bg-stone-900 rounded-full flex items-center justify-center text-red-600 font-bold text-xl border-2 border-red-600">
                 <span className="font-serif italic">HD</span>
               </div>
               <button
@@ -156,13 +156,13 @@ export default function Navbar() {
                   <Link
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-5xl font-serif font-bold text-stone-900 hover:text-red-700 transition-colors flex items-center justify-between group"
+                    className="text-5xl font-serif font-bold text-stone-900 hover:text-red-600 transition-colors flex items-center justify-between group cursor-pointer"
                   >
                     {item.name}
                     <motion.span
                       initial={{ scale: 0 }}
                       whileHover={{ scale: 1 }}
-                      className="text-red-700 text-3xl"
+                      className="text-red-600 text-3xl"
                     >→</motion.span>
                   </Link>
                 </motion.div>

@@ -2,7 +2,7 @@ from pydantic import BaseModel, field_validator, model_validator
 from decimal import Decimal
 from datetime import datetime
 from typing import Optional
-from app.schemas.product import ProductSummary
+from app.schemas.product import ProductSummary, ProductVariantResponse
 from app.schemas.user import UserSummary, AddressResponse
 
 
@@ -19,7 +19,7 @@ VALID_PAYMENT_STATUSES = {"Pending", "Paid", "Failed", "Refunded"}
 # ORDER ITEM SCHEMAS
 # ─────────────────────────────────────────────
 class OrderItemBase(BaseModel):
-    product_id: int
+    product_id: Optional[int] = None
     variant_id: Optional[int] = None
     quantity:   int
     unit_price: Decimal
@@ -49,7 +49,7 @@ class OrderItemCreate(BaseModel):
     unit_price is resolved server-side from the product/variant — 
     never trust the client for pricing.
     """
-    product_id: int
+    product_id: Optional[int] = None
     variant_id: Optional[int] = None
     quantity:   int
 
@@ -81,6 +81,7 @@ class OrderItemResponse(OrderItemBase):
     id:         int
     order_id:   int
     product:    Optional[ProductSummary] = None
+    variant:    Optional[ProductVariantResponse] = None
     is_deleted: bool = False
     deleted_at: Optional[datetime] = None
 

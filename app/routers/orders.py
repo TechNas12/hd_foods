@@ -131,7 +131,7 @@ def get_my_order(
 
 # ── Admin only ───────────────────────────────
 
-@router.get("/", response_model=list[OrderSummary])
+@router.get("/", response_model=list[OrderResponse])
 def list_all_orders(
     db: Session = Depends(get_db),
     _: models.User = Depends(require_admin),

@@ -11,21 +11,21 @@ const slides = [
     title: "Pure Essence of Tradition",
     subtitle: "Handpicked spices from the heart of India, processed with love and care.",
     image: "https://img.freepik.com/free-photo/top-view-indian-seasonings-spices-table_181624-59276.jpg?semt=ais_hybrid&w=740&q=80",
-    accent: "text-red-500"
+    accent: "text-red-600"
   },
   {
     id: 2,
-    title: "Authentic Masala Blends",
+    title: "Signature Masala Blends",
     subtitle: "Secret family recipes passed down through generations for the perfect aroma.",
     image: "https://images.unsplash.com/photo-1509358271058-acd22cc93898?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    accent: "text-yellow-500"
+    accent: "text-red-600/80"
   },
   {
     id: 3,
-    title: "Quality You Can Taste",
+    title: "Crafted for Connoisseurs",
     subtitle: "Zero additives, zero preservatives. Just 100% pure, natural flavor.",
     image: "https://picsum.photos/seed/spices3/1920/1080",
-    accent: "text-emerald-500"
+    accent: "text-red-600"
   }
 ];
 
@@ -129,9 +129,9 @@ export default function Hero() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="group px-10 py-5 bg-red-700 text-white font-black rounded-full transition-all shadow-[0_0_20px_rgba(185,28,28,0.3)] hover:shadow-[0_0_30px_rgba(185,28,28,0.5)] flex items-center gap-2 cursor-pointer relative overflow-hidden active:scale-95"
+              className="group px-10 py-5 bg-red-600 text-white font-black rounded-full transition-all shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] flex items-center gap-2 cursor-pointer relative overflow-hidden active:scale-95"
             >
-              <span className="relative z-10 uppercase tracking-widest text-sm">Shop Collection</span>
+              <span className="relative z-10 uppercase tracking-widest text-sm">Explore Collection</span>
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform relative z-10" />
               <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12" />
             </motion.button>
@@ -195,8 +195,8 @@ export default function Hero() {
       </div>
 
       {/* Decorative Particle Elements */}
-      <div className="absolute top-[20%] right-[10%] w-24 h-24 bg-red-500/10 rounded-full blur-3xl animate-float pointer-events-none" />
-      <div className="absolute bottom-[20%] left-[5%] w-32 h-32 bg-yellow-500/10 rounded-full blur-3xl animate-float pointer-events-none" style={{ animationDelay: '2s' }} />
+      <div className="absolute top-[20%] right-[10%] w-24 h-24 bg-red-600/10 rounded-full blur-3xl animate-float pointer-events-none" />
+      <div className="absolute bottom-[20%] left-[5%] w-32 h-32 bg-stone-500/10 rounded-full blur-3xl animate-float pointer-events-none" style={{ animationDelay: '2s' }} />
     </section>
   );
 }

@@ -3,10 +3,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from app.database import engine
 from app import models
-from app.routers import users, products, orders, support
+from app.routers import users, products, orders, support, categories, addresses
 import os
 
 load_dotenv()
+
+# ─────────────────────────────────────────────
+# Auto-create tables (safe for SQLite local dev)
+# ─────────────────────────────────────────────
+models.Base.metadata.create_all(bind=engine)
 
 
 # ─────────────────────────────────────────────
@@ -25,6 +30,8 @@ app = FastAPI(
 # ─────────────────────────────────────────────
 ALLOWED_ORIGINS = [
     "http://localhost:3000",        # Next.js local dev
+    "http://127.0.0.1:3000",        # Next.js local dev IP
+    "http://192.168.56.1:3000",     # Local network IP
     "http://localhost:3001",        # alternate local port
     os.getenv("FRONTEND_URL", ""),  # production frontend URL
 ]
@@ -42,7 +49,9 @@ app.add_middleware(
 # ─────────────────────────────────────────────
 app.include_router(users.router)
 app.include_router(products.router)
+app.include_router(categories.router)
 app.include_router(orders.router)
+app.include_router(addresses.router)
 app.include_router(support.router)
 
 

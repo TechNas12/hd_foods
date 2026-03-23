@@ -35,8 +35,8 @@ export default function Home() {
         <section ref={galleryRef} className="py-32 bg-stone-950 text-white overflow-hidden relative">
           {/* Decorative background text */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-[0.03] select-none">
-            <span className="text-[15vw] font-serif font-black absolute top-0 -left-20 whitespace-nowrap text-red-300">GENERATIONAL</span>
-            <span className="text-[15vw] font-serif font-black absolute bottom-0 -right-20 whitespace-nowrap text-red-300">TRADITION</span>
+            <span className="text-[15vw] font-serif font-black absolute top-0 -left-20 whitespace-nowrap text-[#CA8A04]">GENERATIONAL</span>
+            <span className="text-[15vw] font-serif font-black absolute bottom-0 -right-20 whitespace-nowrap text-[#CA8A04]">TRADITION</span>
           </div>
 
           <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -44,7 +44,7 @@ export default function Home() {
               <motion.span
                 initial={{ opacity: 0, letterSpacing: "0.5em" }}
                 whileInView={{ opacity: 1, letterSpacing: "0.3em" }}
-                className="text-red-500 font-black uppercase text-xs mb-6 block"
+                className="text-[#CA8A04] font-black uppercase text-xs mb-6 block"
               >
                 HD FOODS & MASALE
               </motion.span>
@@ -167,9 +167,9 @@ export default function Home() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-16 py-6 bg-red-700 text-white font-black rounded-full text-xl shadow-[0_0_30px_rgba(185,28,28,0.4)] hover:shadow-[0_0_50px_rgba(185,28,28,0.6)] transition-all cursor-pointer uppercase tracking-widest active:scale-95"
+                  className="px-16 py-6 bg-[#A61717] text-white font-black rounded-full text-xl  transition-all cursor-pointer uppercase tracking-widest active:scale-95"
                 >
-                  Order Your Sample Kit
+                  Browse Products
                 </motion.button>
               </div>
             </motion.div>

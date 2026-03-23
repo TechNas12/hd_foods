@@ -74,7 +74,7 @@ export default function StorySection() {
             <motion.span
               initial={{ opacity: 0, letterSpacing: "0.2em" }}
               whileInView={{ opacity: 1, letterSpacing: "0.3em" }}
-              className="text-red-700 font-black uppercase text-xs mb-6 block"
+              className="text-red-600 font-black uppercase text-xs mb-6 block"
             >
               Our Legacy
             </motion.span>
@@ -93,14 +93,14 @@ export default function StorySection() {
             </p>
 
             <div className="grid grid-cols-2 gap-12">
-              <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-100">
-                <span className="block text-5xl font-serif font-bold text-red-700 mb-3 tracking-tighter">
+              <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-100 group">
+                <span className="block text-5xl font-serif font-bold text-red-600 mb-3 tracking-tighter">
                   <Counter value={25} suffix="+" />
                 </span>
                 <span className="text-xs uppercase tracking-[0.2em] text-stone-400 font-black">Years of Trust</span>
               </div>
-              <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-100">
-                <span className="block text-5xl font-serif font-bold text-red-700 mb-3 tracking-tighter">
+              <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-100 group">
+                <span className="block text-5xl font-serif font-bold text-red-600 mb-3 tracking-tighter">
                   <Counter value={100} suffix="%" />
                 </span>
                 <span className="text-xs uppercase tracking-[0.2em] text-stone-400 font-black">Natural Ingredients</span>
@@ -134,15 +134,15 @@ export default function StorySection() {
               whileInView={{ opacity: 1, x: 0, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.5, duration: 1, type: "spring" }}
-              className="absolute -bottom-12 -left-12 p-10 bg-white/80 backdrop-blur-2xl rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-white/40 max-w-sm hidden md:block z-20"
+              className="absolute -bottom-12 -left-12 p-10 liquid-glass rounded-3xl max-w-sm hidden md:block z-20"
             >
-              <div className="text-red-700 text-5xl font-serif mb-4 leading-none opacity-20 group-hover:opacity-100 transition-opacity">“</div>
+              <div className="text-red-600 text-5xl font-serif mb-4 leading-none opacity-20 group-hover:opacity-100 transition-opacity">“</div>
               <p className="text-stone-800 font-serif italic text-2xl mb-8 leading-snug">
                 Spices are the soul of Indian cooking, and we treat them with the respect they deserve.
               </p>
               <div className="flex items-center gap-4">
-                <div className="w-8 h-px bg-red-700" />
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-red-700">
+                <div className="w-8 h-px bg-red-600" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-red-600">
                   Founder, HD Foods
                 </span>
               </div>
@@ -173,7 +173,7 @@ export default function StorySection() {
               <motion.h3
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
-                className="text-3xl font-serif font-bold text-stone-900 mb-5 group-hover:text-red-700 transition-colors"
+                className="text-3xl font-serif font-bold text-stone-900 mb-5 group-hover:text-red-600 transition-colors"
               >
                 {feature.title}
               </motion.h3>
@@ -186,7 +186,7 @@ export default function StorySection() {
       </div>
 
       {/* Decorative background element */}
-      <div className="absolute top-1/2 -right-64 w-[500px] h-[500px] bg-red-100 rounded-full blur-[120px] opacity-30 pointer-events-none" />
+      <div className="absolute top-1/2 -right-64 w-[500px] h-[500px] bg-orange-100 rounded-full blur-[120px] opacity-30 pointer-events-none" />
     </section>
   );
 }
