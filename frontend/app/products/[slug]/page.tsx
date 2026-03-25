@@ -226,12 +226,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   </span>
                 )}
               </div>
-              <div className="space-y-2">
-                <h1 className="text-5xl md:text-6xl font-serif font-black text-stone-900 leading-[1.1]">
+              <div className="space-y-4">
+                <h1 className="text-6xl md:text-7xl font-serif font-black text-stone-900 leading-[0.9] text-shadow-premium">
                   {product.name}
                 </h1>
                 {product.subtitle && (
-                  <p className="text-lg font-medium text-stone-500 italic">
+                  <p className="text-xl font-medium text-stone-400 italic">
                     {product.subtitle}
                   </p>
                 )}
@@ -302,11 +302,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   </>
                 )}
               </motion.button>
-              <motion.button
+               <motion.button
                 onClick={handleBuyItNow}
-                whileHover={{ scale: 1.02, backgroundColor: "#B91C1C" }}
-                whileTap={{ scale: 0.98 }}
-                className="flex-1 bg-red-600 text-white h-[66px] rounded-2xl font-black uppercase tracking-widest text-[11px] flex items-center justify-center gap-3 shadow-xl shadow-red-600/20 transition-all cursor-pointer"
+                whileHover={{ scale: 1.05, backgroundColor: "#B91C1C" }}
+                whileTap={{ scale: 0.95 }}
+                className="flex-1 bg-red-600 text-white h-[66px] rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-3 shadow-[0_15px_40px_rgba(220,38,38,0.4)] transition-all cursor-pointer animate-pulse-slow"
               >
                 <Zap size={20} fill="currentColor" />
                 Buy It Now

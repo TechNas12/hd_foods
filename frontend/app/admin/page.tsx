@@ -3,15 +3,18 @@
 import React, { useEffect, useState, Fragment } from 'react';
 import { motion } from 'framer-motion';
 import { Package, ShoppingCart, DollarSign, TrendingUp, Loader2, Layers, ChevronDown, ChevronUp, MapPin, User } from 'lucide-react';
-import { fetchProducts, adminFetchOrders, fetchCategories } from '@/lib/api';
-import type { ProductSummary, Order, Category } from '@/lib/types';
+import { fetchProducts, adminFetchOrders, fetchCategories, adminFetchSettings } from '@/lib/api';
+import type { ProductSummary, Order, Category, StoreSettings } from '@/lib/types';
+import WarehouseModal from '@/components/WarehouseModal';
 
 export default function AdminDashboard() {
   const [products, setProducts] = useState<ProductSummary[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [settings, setSettings] = useState<StoreSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
+  const [isWarehouseModalOpen, setIsWarehouseModalOpen] = useState(false);
 
   const toggleOrder = (id: number) => {
     setExpandedOrderId(expandedOrderId === id ? null : id);
@@ -23,14 +26,16 @@ export default function AdminDashboard() {
 
   const loadDashboard = async () => {
     try {
-      const [prods, ords, cats] = await Promise.all([
+      const [prods, ords, cats, sets] = await Promise.all([
         fetchProducts({ limit: 100 }),
         adminFetchOrders(),
         fetchCategories(),
+        adminFetchSettings(),
       ]);
       setProducts(prods);
       setOrders(ords);
       setCategories(cats);
+      setSettings(sets);
     } catch (err) {
       console.error('Dashboard load failed:', err);
     } finally {
@@ -64,10 +69,10 @@ export default function AdminDashboard() {
         {stats.map((stat, i) => (
           <motion.div
             key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.1 }}
-            className="bg-white rounded-3xl p-8 border border-stone-100 shadow-sm hover:shadow-md transition-shadow"
+            className="glass-card rounded-[2.5rem] p-8 hover:shadow-xl hover:-translate-y-1"
           >
             <div className="flex items-center justify-between mb-6">
               <div className={`p-3 rounded-2xl ${stat.iconBg} flex items-center justify-center`}>
@@ -80,11 +85,12 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Recent Orders */}
-      <div className="bg-white rounded-3xl border border-stone-100 shadow-sm overflow-hidden">
-        <div className="p-8 border-b border-stone-100">
-          <h3 className="text-xl font-bold text-stone-900">Recent Orders</h3>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left: Recent Orders */}
+        <div className="lg:col-span-2 bg-white/70 backdrop-blur-xl rounded-[2.5rem] border border-white/40 shadow-xl overflow-hidden">
+          <div className="p-8 border-b border-white/20">
+            <h3 className="text-xl font-black text-stone-900 tracking-tight">Recent Orders</h3>
+          </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -243,6 +249,44 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
+
+      {/* Right: Warehouse Configuration */}
+      <div className="lg:col-span-1 bg-white/80 backdrop-blur-2xl rounded-[2.5rem] border border-white/40 shadow-2xl overflow-hidden flex flex-col items-center p-10 text-center justify-center relative group">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600/0 via-red-600 to-red-600/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+        <div className="w-20 h-20 bg-red-600/10 text-red-600 rounded-[2rem] flex items-center justify-center mb-8 border border-red-600/20 shadow-inner">
+          <MapPin size={32} />
+        </div>
+        <h3 className="text-2xl font-serif font-black text-stone-900 mb-3">Warehouse Hub</h3>
+        <p className="text-stone-500 font-medium text-sm px-6 leading-relaxed mb-8">
+          {settings?.warehouse_address || 'Warehouse location not configured. Delivery distance calculation might be inaccurate.'}
+        </p>
+
+        <div className="grid grid-cols-2 gap-2 w-full mb-8">
+          <div className="bg-stone-50 border border-stone-100 p-4 rounded-xl text-left">
+            <p className="text-[9px] font-black uppercase tracking-widest text-stone-400 mb-1">Free Delivery</p>
+            <p className="font-bold text-stone-900">Upto {settings?.free_delivery_km} km</p>
+          </div>
+          <div className="bg-stone-50 border border-stone-100 p-4 rounded-xl text-left">
+            <p className="text-[9px] font-black uppercase tracking-widest text-stone-400 mb-1">Tier 1 Fee</p>
+            <p className="font-bold text-stone-900">₹{settings?.tier1_delivery_fee} (&le;{settings?.tier1_delivery_km} km)</p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setIsWarehouseModalOpen(true)}
+          className="w-full py-4 bg-stone-900 hover:bg-stone-800 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-stone-900/20 transition-all cursor-pointer"
+        >
+          Configure Warehouse
+        </button>
+      </div>
     </div>
+    
+    <WarehouseModal
+      isOpen={isWarehouseModalOpen}
+      onClose={() => setIsWarehouseModalOpen(false)}
+      onSuccess={loadDashboard}
+      settings={settings}
+    />
+  </div>
   );
 }

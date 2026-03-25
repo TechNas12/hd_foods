@@ -4,6 +4,7 @@ import { apiFetch, getToken } from './api-client';
 import type {
   Product, ProductSummary, ProductImage, User, Address, Order,
   OrderSummary, Review, EnquiryTicket, EnquiryTicketSummary, Category,
+  UserDistance, AddressWithUser, StoreSettings,
 } from './types';
 
 
@@ -94,6 +95,8 @@ export async function addAddress(payload: {
   state: string;
   pincode: string;
   is_default?: boolean;
+  lat?: number;
+  lng?: number;
 }): Promise<Address> {
   return apiFetch<Address>('/addresses/', {
     method: 'POST',
@@ -111,6 +114,8 @@ export async function updateAddress(addressId: number, payload: {
   state?: string;
   pincode?: string;
   is_default?: boolean;
+  lat?: number;
+  lng?: number;
 }): Promise<Address> {
   return apiFetch<Address>(`/addresses/${addressId}`, {
     method: 'PATCH',
@@ -386,5 +391,39 @@ export async function adminUpdateUser(
 export async function adminDeleteUser(userId: number): Promise<void> {
   await apiFetch(`/users/${userId}`, {
     method: 'DELETE',
+  }, true);
+}
+
+// ─────────────────────────────────────────────
+// Admin — Addresses
+// ─────────────────────────────────────────────
+export async function adminFetchAllAddresses(skip = 0, limit = 50): Promise<Address[]> {
+  return apiFetch<Address[]>(`/addresses/admin/all?skip=${skip}&limit=${limit}`, {}, true);
+}
+
+export async function adminFetchUserAddresses(userId: number): Promise<Address[]> {
+  return apiFetch<Address[]>(`/addresses/admin/user/${userId}`, {}, true);
+}
+
+export async function adminFetchDistances(): Promise<UserDistance[]> {
+  return apiFetch<UserDistance[]>('/addresses/admin/distances', {}, true);
+}
+
+
+// ─────────────────────────────────────────────
+// Admin — Settings
+// ─────────────────────────────────────────────
+export async function fetchPublicSettings(): Promise<StoreSettings> {
+  return apiFetch<StoreSettings>('/settings/public');
+}
+
+export async function adminFetchSettings(): Promise<StoreSettings> {
+  return apiFetch<StoreSettings>('/settings/admin', {}, true);
+}
+
+export async function adminUpdateSettings(payload: Partial<StoreSettings>): Promise<StoreSettings> {
+  return apiFetch<StoreSettings>('/settings/admin', {
+    method: 'PUT',
+    body: JSON.stringify(payload),
   }, true);
 }

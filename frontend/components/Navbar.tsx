@@ -42,7 +42,7 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed z-50 transition-all duration-500 ease-in-out ${showScrolledStyle
+      className={`fixed z-50 transition-all duration-700 ease-in-out ${showScrolledStyle
         ? 'top-4 left-4 right-4 py-3 liquid-glass rounded-2xl md:py-4 px-6 scale-100'
         : 'top-0 left-0 right-0 py-6 bg-transparent px-6'
         }`}
@@ -92,31 +92,37 @@ export default function Navbar() {
           >
             <Search size={20} />
           </motion.button>
-          <Link href={isAuth ? "/account" : "/login"}>
-            <motion.button
+          <Link 
+            href={isAuth ? "/account" : "/login"}
+            className={`p-2 rounded-full transition-colors cursor-pointer ${showScrolledStyle ? 'hover:bg-stone-100' : 'hover:bg-white/10'}`}
+          >
+            <motion.div
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className={`p-2 rounded-full transition-colors cursor-pointer ${showScrolledStyle ? 'hover:bg-stone-100' : 'hover:bg-white/10'}`}
+              className="flex items-center justify-center"
             >
               <User size={20} />
-            </motion.button>
+            </motion.div>
           </Link>
-          <Link href="/cart">
-            <motion.button
+          <Link 
+            href="/cart"
+            className={`p-2 rounded-full transition-colors overflow-visible cursor-pointer relative ${showScrolledStyle ? 'hover:bg-stone-100' : 'hover:bg-white/10'}`}
+          >
+            <motion.div
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className={`p-2 rounded-full transition-colors overflow-visible cursor-pointer relative ${showScrolledStyle ? 'hover:bg-stone-100' : 'hover:bg-white/10'}`}
+              className="flex items-center justify-center"
             >
               <ShoppingBag size={20} />
               {clientMounted && itemCount > 0 && (
-                 <span className="absolute top-0 -right-1 w-4 h-4 bg-red-600 rounded-full flex items-center justify-center text-[9px] font-black text-white shadow-sm ring-2 ring-white transform origin-center scale-100 transition-transform">
+                 <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 rounded-full flex items-center justify-center text-[9px] font-black text-white shadow-sm ring-2 ring-white transform origin-center scale-100 transition-transform">
                    {itemCount}
                  </span>
               )}
-            </motion.button>
+            </motion.div>
           </Link>
           <button
-            className={`md:hidden p-2 rounded-full transition-colors cursor-pointer ${showScrolledStyle ? 'hover:bg-stone-100' : 'hover:bg-white/10'}`}
+            className={`md:hidden p-2 rounded-full transition-colors cursor-pointer active:scale-95 ${showScrolledStyle ? 'hover:bg-stone-100' : 'hover:bg-white/10'}`}
             onClick={() => setIsMobileMenuOpen(true)}
           >
             <Menu size={24} />

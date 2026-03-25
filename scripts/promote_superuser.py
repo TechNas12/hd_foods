@@ -1,36 +1,78 @@
 import sys
 import os
+import argparse
+import getpass
+from sqlalchemy.orm import Session
 
-# Add parent directory to path to allow importing app modules
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add the parent directory to sys.path so we can import from app
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
 
 from app.database import SessionLocal
-from app import models
+from app.models import User
+from app.routers.users import get_password_hash
 
-def promote(email: str):
+def get_db() -> Session:
     db = SessionLocal()
     try:
-        user = db.query(models.User).filter(models.User.email == email).first()
-        if not user:
-            print(f"Error: User with email '{email}' not found.")
-            return
-
-        # Ensure only one superuser exists
-        db.query(models.User).update({models.User.is_superuser: False})
-        
-        user.is_superuser = True
-        user.is_admin = True # Superuser must be admin
-        db.commit()
-        print(f"Success: User '{email}' has been promoted to Super User.")
-        print("Note: This user is now immutable via the web interface.")
-    except Exception as e:
-        db.rollback()
-        print(f"An error occurred: {e}")
+        yield db
     finally:
         db.close()
 
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python promote_superuser.py <email>")
+def create_or_promote_superuser(email: str, password: str, name: str = "Admin"):
+    db = next(get_db())
+    
+    # Check if user already exists
+    user = db.query(User).filter(User.email == email).first()
+    
+    if user:
+        # Promote existing user
+        user.is_admin = True
+        
+        # Update password if provided
+        if password:
+            user.password = get_password_hash(password)
+            
+        print(f"✅ Promoted existing user '{email}' to Superuser.")
     else:
-        promote(sys.argv[1])
+        # Create new superuser
+        if not password:
+            print("❌ Error: Password is required for creating a new superuser.")
+            return
+
+        hashed_password = get_password_hash(password)
+        new_user = User(
+            email=email,
+            password=hashed_password,
+            full_name=name,
+            is_admin=True,
+            is_active=True
+        )
+        db.add(new_user)
+        print(f"✅ Created new Superuser '{email}'.")
+        
+    db.commit()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Create or promote a user to Superuser status.")
+    parser.add_argument("--email", type=str, help="Email of the superuser")
+    parser.add_argument("--name", type=str, default="Admin", help="Full name of the superuser (default: Admin)")
+    
+    args = parser.parse_args()
+    
+    email = args.email
+    if not email:
+        email = input("Enter Admin Email: ").strip()
+        
+    if not email:
+        print("❌ Error: Email is required.")
+        sys.exit(1)
+        
+    password = getpass.getpass(f"Enter Password for {email}: ").strip()
+    
+    if not password:
+         print("❌ Error: Password cannot be empty.")
+         sys.exit(1)
+
+    create_or_promote_superuser(email, password, args.name)

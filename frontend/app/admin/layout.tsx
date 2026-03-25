@@ -6,10 +6,10 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Package, ShoppingCart, MessageSquare,
-  ChevronLeft, LogOut, Loader2, Menu, X, Layers, Users
+  ChevronLeft, LogOut, Loader2, Menu, X, Layers, Users, MapPin
 } from 'lucide-react';
 import { fetchProfile } from '@/lib/api';
-import { getSession, logout } from '@/lib/auth';
+import { getAdminToken, setAdminToken } from '@/lib/api-client';
 import type { User } from '@/lib/types';
 
 const sidebarLinks = [
@@ -33,36 +33,48 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, []);
 
   const checkAdmin = async () => {
-    const session = await getSession();
-    if (!session) {
-      router.push('/login');
+    if (pathname === '/admin/login') {
+      setLoading(false);
+      return;
+    }
+    const token = getAdminToken();
+    if (!token) {
+      router.push('/admin/login');
       return;
     }
     try {
       const profile = await fetchProfile();
       if (!profile.is_admin) {
-        router.push('/account');
+        setAdminToken('');
+        router.push('/admin/login');
         return;
       }
       setUser(profile);
     } catch {
-      router.push('/login');
+      setAdminToken('');
+      router.push('/admin/login');
     } finally {
       setLoading(false);
     }
   };
 
   const handleLogout = async () => {
-    await logout();
-    router.push('/login');
+    setAdminToken('');
+    router.push('/admin/login');
   };
 
   if (loading) {
+    if (pathname === '/admin/login') return <>{children}</>;
     return (
       <div className="min-h-screen bg-stone-900 flex items-center justify-center">
         <Loader2 size={40} className="animate-spin text-red-600" />
       </div>
     );
+  }
+
+  // If we are on the login page, just render children without sidebar
+  if (pathname === '/admin/login') {
+    return <>{children}</>;
   }
 
   if (!user) return null;

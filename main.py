@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from app.database import engine
 from app import models
-from app.routers import users, products, orders, support, categories, addresses
+from app.routers import users, products, orders, support, categories, addresses, settings
 import os
 
 load_dotenv()
@@ -53,6 +53,7 @@ app.include_router(categories.router)
 app.include_router(orders.router)
 app.include_router(addresses.router)
 app.include_router(support.router)
+app.include_router(settings.router)
 
 
 # ─────────────────────────────────────────────

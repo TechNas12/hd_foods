@@ -4,6 +4,8 @@ from datetime import datetime, timezone
 from app.database import get_db
 from app.dependencies import get_current_active_user, require_admin
 from app import models
+from app.utils import haversine
+import os
 from app.schemas.order import (
     OrderCreate, OrderResponse, OrderSummary,
     OrderStatusUpdate, OrderPaymentUpdate,
@@ -78,8 +80,26 @@ def place_order(
             unit_price = unit_price,
         ))
 
-    # Free shipping over ₹500
-    shipping_fee = 0 if subtotal >= 500 else 50
+    # Fetch store settings for distance-based shipping
+    from app.routers.settings import get_or_create_settings
+    settings = get_or_create_settings(db)
+    
+    # Calculate distance to determine shipping fee
+    dist_km = 999.0
+    shipping_fee = 0
+    
+    if address.lat is not None and address.lng is not None and settings.warehouse_lat and settings.warehouse_lng:
+        dist_km = haversine(settings.warehouse_lat, settings.warehouse_lng, address.lat, address.lng)
+    
+    if dist_km <= settings.free_delivery_km:
+        shipping_fee = 0
+    elif dist_km <= settings.tier1_delivery_km:
+        shipping_fee = settings.tier1_delivery_fee
+    else:
+        # Distance > 6km (or tier1 limit). "Will be communicated". 
+        # For now, we set shipping_fee = 0 so it doesn't charge them incorrectly.
+        shipping_fee = 0
+
     total_amount = subtotal + shipping_fee
 
     order = models.Order(
@@ -136,9 +156,21 @@ def list_all_orders(
     db: Session = Depends(get_db),
     _: models.User = Depends(require_admin),
 ):
-    return db.query(models.Order).filter(
+    orders = db.query(models.Order).filter(
         models.Order.is_deleted == False
     ).order_by(models.Order.created_at.desc()).all()
+
+    from app.routers.settings import get_or_create_settings
+    settings = get_or_create_settings(db)
+
+    for order in orders:
+        if order.address and order.address.lat is not None and order.address.lng is not None and settings.warehouse_lat and settings.warehouse_lng:
+            dist = haversine(settings.warehouse_lat, settings.warehouse_lng, order.address.lat, order.address.lng)
+            order.distance_km = round(dist, 1)
+        else:
+            order.distance_km = None
+
+    return orders
 
 
 @router.patch("/{order_id}/status", response_model=OrderResponse)

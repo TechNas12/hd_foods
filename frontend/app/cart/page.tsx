@@ -11,8 +11,8 @@ import Footer from '@/components/Footer';
 export default function CartPage() {
   const { items, updateQuantity, removeFromCart, cartTotal } = useCart();
 
-  const shipping = cartTotal > 999 ? 0 : 50;
-  const grandTotal = cartTotal + (items.length > 0 ? shipping : 0);
+  const shipping = Number(cartTotal) > 999 ? 0 : 50;
+  const grandTotal = Number(cartTotal) + (items.length > 0 ? Number(shipping) : 0);
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col">

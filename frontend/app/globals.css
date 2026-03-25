@@ -28,7 +28,7 @@
   }
 
   body {
-    @apply selection:bg-orange-100 selection:text-stone-900;
+    @apply selection:bg-red-600 selection:text-white;
   }
 
   /* Custom Scrollbar */
@@ -53,11 +53,11 @@
 
 @layer utilities {
   .liquid-glass {
-    @apply bg-white/60 backdrop-blur-2xl border border-white/20 shadow-2xl transition-all duration-500 ease-in-out;
+    @apply bg-white/70 backdrop-blur-2xl border border-white/30 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] transition-all duration-500 ease-in-out;
   }
 
   .glass-dark {
-    @apply bg-stone-950/80 backdrop-blur-2xl border border-white/5 shadow-2xl;
+    @apply bg-stone-950/80 backdrop-blur-2xl border border-white/10 shadow-[0_20px_80px_-20px_rgba(0,0,0,0.3)];
   }
 
   .glass-card {
@@ -91,7 +91,15 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #DC2626;
+    @apply bg-red-600;
+  }
+
+  .text-shadow-premium {
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .hover-lift {
+    @apply transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl;
   }
 }
 
@@ -128,6 +136,21 @@
   50% {
     box-shadow: 0 0 0 15px rgba(185, 28, 28, 0);
   }
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(0.98);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .animate-float {

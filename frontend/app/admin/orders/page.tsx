@@ -93,6 +93,7 @@ export default function AdminOrdersPage() {
                 <th className="text-left px-4 py-4">Payment</th>
                 <th className="text-left px-4 py-4">Method</th>
                 <th className="text-right px-4 py-4">Amount</th>
+                <th className="text-right px-4 py-4">Distance</th>
                 <th className="text-left px-8 py-4">Date</th>
               </tr>
             </thead>
@@ -151,6 +152,14 @@ export default function AdminOrdersPage() {
                     </td>
                     <td className="px-4 py-5 text-stone-500 text-sm font-medium uppercase tracking-tighter">{order.payment_method}</td>
                     <td className="px-4 py-5 text-right font-black text-stone-900">₹{order.total_amount}</td>
+                    <td className="px-4 py-5 text-right font-bold text-stone-600">
+                      {order.distance_km != null ? (
+                        <span className="flex items-center justify-end gap-1">
+                          <MapPin size={12} className="text-stone-400" />
+                          {order.distance_km.toFixed(1)} km
+                        </span>
+                      ) : '-'}
+                    </td>
                     <td className="px-8 py-5 text-stone-400 text-xs font-medium">
                       {new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </td>

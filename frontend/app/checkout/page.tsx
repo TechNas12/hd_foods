@@ -6,11 +6,22 @@ import { MapPin, CreditCard, ArrowRight, ShieldCheck, CheckCircle2, ChevronLeft,
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cart';
-import { fetchAddresses, placeOrder } from '@/lib/api';
+import { fetchAddresses, placeOrder, fetchPublicSettings } from '@/lib/api';
 import { getSession } from '@/lib/auth';
-import type { Address } from '@/lib/types';
+import type { Address, StoreSettings } from '@/lib/types';
 import AddressModal from '@/components/AddressModal';
 import { Plus } from 'lucide-react';
+
+function getDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371; // Radius of the earth in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c; 
+}
 
 export default function CheckoutPage() {
   const { items, cartTotal, clearCart } = useCart();
@@ -24,6 +35,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [settings, setSettings] = useState<StoreSettings | null>(null);
 
   useEffect(() => {
     checkAuthAndLoadAddresses();
@@ -36,19 +48,45 @@ export default function CheckoutPage() {
       return;
     }
     try {
-      const addrs = await fetchAddresses();
+      const [addrs, sets] = await Promise.all([
+        fetchAddresses(),
+        fetchPublicSettings()
+      ]);
       setAddresses(addrs);
+      setSettings(sets);
       const defaultAddr = addrs.find(a => a.is_default);
       setSelectedAddress(defaultAddr?.id || addrs[0]?.id || null);
     } catch (err) {
-      console.error('Failed to load addresses:', err);
+      console.error('Failed to load data:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const shipping = cartTotal > 499 ? 0 : 50;
-  const grandTotal = cartTotal + (items.length > 0 ? shipping : 0);
+  let shipping = 0;
+  let isBeyondDelivery = false;
+  
+  if (settings && selectedAddress) {
+    const addr = addresses.find(a => a.id === selectedAddress);
+    if (addr?.lat && addr?.lng && settings.warehouse_lat && settings.warehouse_lng) {
+      const distance = getDistance(settings.warehouse_lat, settings.warehouse_lng, addr.lat, addr.lng);
+      if (distance <= settings.free_delivery_km) {
+        shipping = 0;
+      } else if (distance <= settings.tier1_delivery_km) {
+        shipping = settings.tier1_delivery_fee;
+      } else {
+        isBeyondDelivery = true;
+        shipping = 0;
+      }
+    } else {
+      // Fallback if no coordinates
+      shipping = cartTotal > 499 ? 0 : 50; 
+    }
+  } else {
+    shipping = cartTotal > 499 ? 0 : 50;
+  }
+
+  const grandTotal = Number(cartTotal) + (items.length > 0 ? Number(shipping) : 0);
 
   const handlePlaceOrder = async () => {
     if (!selectedAddress) {
@@ -280,9 +318,13 @@ export default function CheckoutPage() {
                 <span>Subtotal</span>
                 <span className="text-white/90">₹{cartTotal}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span>Shipping</span>
-                <span className="text-white/90">{shipping === 0 ? 'Free' : `₹${shipping}`}</span>
+                <span className="text-white/90 text-right">
+                  {isBeyondDelivery 
+                    ? <span className="text-amber-400 text-[10px] tracking-widest uppercase bg-amber-400/10 px-2 py-1 rounded">Will be communicated</span>
+                    : (shipping === 0 ? 'Free' : `₹${shipping}`)}
+                </span>
               </div>
             </div>
 

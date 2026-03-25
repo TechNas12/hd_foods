@@ -24,6 +24,7 @@ export default function AccountPage() {
   const [loading, setLoading] = useState(true);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+  const [processingIds, setProcessingIds] = useState<number[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -75,16 +76,25 @@ export default function AccountPage() {
     }
   };
   const handleAddressAction = async (action: 'delete' | 'default', id: number) => {
+    if (processingIds.includes(id)) return;
+    
     try {
       if (action === 'delete') {
         if (!confirm('Are you sure you want to delete this address?')) return;
+      }
+      
+      setProcessingIds(prev => [...prev, id]);
+      
+      if (action === 'delete') {
         await deleteAddress(id);
       } else {
         await setDefaultAddress(id);
       }
-      loadAccount();
+      await loadAccount();
     } catch (err) {
       console.error(`Failed to ${action} address:`, err);
+    } finally {
+      setProcessingIds(prev => prev.filter(pid => pid !== id));
     }
   };
 
@@ -214,32 +224,40 @@ export default function AccountPage() {
                           <h3 className="font-serif text-lg font-bold text-stone-900">{addr.label}</h3>
                         </div>
                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          {!addr.is_default && (
-                            <button
-                              onClick={() => handleAddressAction('default', addr.id)}
-                              className="p-2 hover:bg-emerald-50 text-stone-400 hover:text-emerald-600 rounded-lg transition-all cursor-pointer"
-                              title="Set as Default"
-                            >
-                              <ShieldCheck size={16} />
-                            </button>
+                          {processingIds.includes(addr.id) ? (
+                            <div className="p-2 text-stone-300">
+                              <Loader2 size={16} className="animate-spin" />
+                            </div>
+                          ) : (
+                            <>
+                              {!addr.is_default && (
+                                <button
+                                  onClick={() => handleAddressAction('default', addr.id)}
+                                  className="p-2 hover:bg-emerald-50 text-stone-400 hover:text-emerald-600 rounded-lg transition-all cursor-pointer"
+                                  title="Set as Default"
+                                >
+                                  <ShieldCheck size={16} />
+                                </button>
+                              )}
+                              <button
+                                onClick={() => {
+                                  setEditingAddress(addr);
+                                  setIsAddressModalOpen(true);
+                                }}
+                                className="p-2 hover:bg-stone-100 text-stone-400 hover:text-stone-900 rounded-lg transition-all cursor-pointer"
+                                title="Edit"
+                              >
+                                <ExternalLink size={16} />
+                              </button>
+                              <button
+                                onClick={() => handleAddressAction('delete', addr.id)}
+                                className="p-2 hover:bg-red-50 text-stone-400 hover:text-red-600 rounded-lg transition-all cursor-pointer"
+                                title="Delete"
+                              >
+                                <XCircle size={16} />
+                              </button>
+                            </>
                           )}
-                          <button
-                            onClick={() => {
-                              setEditingAddress(addr);
-                              setIsAddressModalOpen(true);
-                            }}
-                            className="p-2 hover:bg-stone-100 text-stone-400 hover:text-stone-900 rounded-lg transition-all cursor-pointer"
-                            title="Edit"
-                          >
-                            <ExternalLink size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleAddressAction('delete', addr.id)}
-                            className="p-2 hover:bg-red-50 text-stone-400 hover:text-red-600 rounded-lg transition-all cursor-pointer"
-                            title="Delete"
-                          >
-                            <XCircle size={16} />
-                          </button>
                         </div>
                       </div>
                       <div className="space-y-1">

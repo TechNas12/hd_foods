@@ -179,6 +179,7 @@ class OrderResponse(OrderBase):
     items:          list[OrderItemResponse] = []
     user:           Optional[UserSummary]   = None
     address:        Optional[AddressResponse] = None
+    distance_km:    Optional[float] = None
     is_deleted:     bool = False
     deleted_at:     Optional[datetime] = None
 

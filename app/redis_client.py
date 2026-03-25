@@ -29,11 +29,13 @@ else:
 CACHE_KEYS = {
     "products_list": "products:list",           # all products listing
     "product_slug":  "products:slug:{}",        # single product by slug
+    "user_distance": "dist:{}",                 # distance calcs per user_id
 }
 
 CACHE_TTL = {
     "products_list": 60 * 5,    # 5 minutes
     "product_slug":  60 * 10,   # 10 minutes
+    "user_distance": 60 * 60,   # 1 hour
 }
 
 
@@ -62,21 +64,26 @@ def from_json(data: str):
 
 
 # ─────────────────────────────────────────────
-# Cache helpers — all become no-ops if redis is None
+# Cache helpers — all become no-ops if redis is None or fails
 # ─────────────────────────────────────────────
+_redis_failed = False
+
 def cache_set(key: str, value, ttl: int) -> None:
     """Store value in Redis with expiry"""
-    if not redis:
+    global _redis_failed
+    if not redis or _redis_failed:
         return
     try:
         redis.set(key, to_json(value), ex=ttl)
     except Exception as e:
         print(f"[Redis] cache_set failed for key={key}: {e}")
+        _redis_failed = True
 
 
 def cache_get(key: str):
     """Retrieve value from Redis — returns None on miss or error"""
-    if not redis:
+    global _redis_failed
+    if not redis or _redis_failed:
         return None
     try:
         data = redis.get(key)
@@ -85,18 +92,21 @@ def cache_get(key: str):
         return None
     except Exception as e:
         print(f"[Redis] cache_get failed for key={key}: {e}")
+        _redis_failed = True
         return None
 
 
 def cache_delete(*keys: str) -> None:
     """Delete one or more keys from Redis"""
-    if not redis:
+    global _redis_failed
+    if not redis or _redis_failed:
         return
     try:
         for key in keys:
             redis.delete(key)
     except Exception as e:
         print(f"[Redis] cache_delete failed: {e}")
+        _redis_failed = True
 
 
 def invalidate_product_cache(slug: str = None) -> None:

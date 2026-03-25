@@ -185,7 +185,7 @@ export default function ProductGrid() {
                 >
                   <Link href={`/products/${product.slug}`}>
                     {/* Image Container */}
-                    <div className="relative aspect-[4/5] overflow-hidden rounded-[2.5rem] bg-stone-100 mb-8 shadow-[0_10px_30px_rgba(0,0,0,0.05)] group-hover:shadow-[0_30px_60px_rgba(0,0,0,0.12)] transition-all duration-700 group-hover:-translate-y-3">
+                    <div className="relative aspect-[4/5] overflow-hidden rounded-[2.5rem] bg-stone-100 mb-8 shadow-[0_10px_30px_rgba(0,0,0,0.05)] transition-all duration-700 hover-lift">
                       <ProductCardImage product={product} />
 
                       {/* Shimmer overlay */}
@@ -200,7 +200,7 @@ export default function ProductGrid() {
                           <motion.div
                             initial={{ x: -20, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
-                            className="bg-red-600 text-white px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1.5"
+                            className="bg-red-600/90 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1.5 border border-white/20"
                           >
                             <BadgePercent size={14} />
                             {Math.round(((Number(product.original_price) - Number(product.base_price)) / Number(product.original_price)) * 100)}% OFF
@@ -208,7 +208,7 @@ export default function ProductGrid() {
                         )}
                         <motion.div
                           whileHover={{ scale: 1.1 }}
-                          className="ml-auto flex items-center gap-1.5 bg-white/90 backdrop-blur-md text-stone-900 px-3 py-1.5 rounded-full text-[12px] font-black shadow-lg border border-white/20"
+                          className="ml-auto flex items-center gap-1.5 bg-white/70 backdrop-blur-md text-stone-900 px-3 py-1.5 rounded-full text-[12px] font-black shadow-lg border border-white/40"
                         >
                           <Star className="w-4 h-4 text-yellow-500" fill="currentColor" />
                           <span>{Number(product.rating).toFixed(1)}</span>

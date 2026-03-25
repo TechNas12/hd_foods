@@ -91,6 +91,33 @@ export interface Address {
   state: string;
   pincode: string;
   is_default: boolean;
+  lat: number | null;
+  lng: number | null;
+  maps_url: string | null;
+}
+
+export interface AddressWithUser extends Address {
+  user?: UserSummary;
+}
+
+export interface AddressDistanceItem {
+  id: number;
+  label: string;
+  address_line1: string;
+  city: string | null;
+  pincode: string | null;
+  lat: number | null;
+  lng: number | null;
+  maps_url: string | null;
+  distance_km: number | null;
+}
+
+export interface UserDistance {
+  user_id: number;
+  full_name: string;
+  email: string;
+  addresses: AddressDistanceItem[];
+  avg_distance_km: number | null;
 }
 
 export interface OrderItem {
@@ -119,6 +146,7 @@ export interface Order {
   items: OrderItem[];
   user: UserSummary | null;
   address: Address | null;
+  distance_km: number | null;
 }
 
 export interface OrderSummary {
@@ -158,4 +186,15 @@ export interface EnquiryTicketSummary {
   status: string;
   order_id: number | null;
   created_at: string;
+}
+
+export interface StoreSettings {
+  id: number;
+  warehouse_address: string | null;
+  warehouse_lat: number | null;
+  warehouse_lng: number | null;
+  free_delivery_km: number;
+  tier1_delivery_km: number;
+  tier1_delivery_fee: number;
+  updated_at: string;
 }

@@ -14,6 +14,17 @@ export const setToken = (token: string) => {
   }
 };
 
+export const getAdminToken = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('hd_foods_admin_token');
+};
+
+export const setAdminToken = (token: string) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('hd_foods_admin_token', token);
+  }
+};
+
 export async function apiFetch<T>(
   path: string,
   options: RequestInit = {},
@@ -25,7 +36,11 @@ export async function apiFetch<T>(
   };
 
   if (requireAuth) {
-    const token = getToken();
+    let token = getToken();
+    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')) {
+      token = getAdminToken(); // Admin routes strictly require admin token
+    }
+
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }

@@ -23,7 +23,12 @@ class User(Base):
     is_deleted = Column(Boolean, default=False, nullable=False)
     deleted_at = Column(DateTime(timezone=True), nullable=True)
 
-    addresses = relationship("Address", back_populates="user", cascade="all, delete-orphan")
+    addresses = relationship(
+        "Address", 
+        back_populates="user", 
+        cascade="all, delete-orphan",
+        primaryjoin="and_(User.id==Address.user_id, Address.is_deleted==False)"
+    )
     orders    = relationship("Order",   back_populates="user")
     reviews   = relationship("Review",  back_populates="user")
     tickets   = relationship("EnquiryTicket", back_populates="user")
@@ -43,6 +48,11 @@ class Address(Base):
     state         = Column(String(100), nullable=False)
     pincode       = Column(String(10),  nullable=False)
     is_default    = Column(Boolean, default=False)
+
+    # Google Maps fields
+    lat       = Column(Float, nullable=True)
+    lng       = Column(Float, nullable=True)
+    maps_url  = Column(String(500), nullable=True)
 
     # Soft delete
     is_deleted = Column(Boolean, default=False, nullable=False)
@@ -207,3 +217,19 @@ class Review(Base):
 
     product = relationship("Product", back_populates="reviews")
     user    = relationship("User",    back_populates="reviews")
+
+
+class StoreSettings(Base):
+    __tablename__ = "store_settings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    warehouse_address = Column(String(500), nullable=True)
+    warehouse_lat = Column(Float, nullable=True)
+    warehouse_lng = Column(Float, nullable=True)
+    
+    # Distance based shipping rules
+    free_delivery_km = Column(Float, default=3.0)
+    tier1_delivery_km = Column(Float, default=6.0)
+    tier1_delivery_fee = Column(Numeric(10, 2), default=80.00)
+    
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
